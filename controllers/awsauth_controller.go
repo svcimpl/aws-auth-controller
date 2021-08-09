@@ -18,12 +18,11 @@ package controllers
 
 import (
 	"context"
-
+	"fmt"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/json"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/log"
-
 	authv1alpha1 "svcimpl.com/aws-auth-controller/api/v1alpha1"
 )
 
@@ -47,10 +46,19 @@ type AWSAuthReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.8.3/pkg/reconcile
 func (r *AWSAuthReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	//start := time.Now()
+	log := ctrl.LoggerFrom(ctx)
 
+	var customawsauth authv1alpha1.AWSAuth
 	// your logic here
-
+	if err := r.Get(ctx, req.NamespacedName, &customawsauth); err != nil {
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+	marshal, err := json.Marshal(customawsauth)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+	log.Info(fmt.Sprintf("CRD AWSAuth is :\n %s", string(marshal)))
 	return ctrl.Result{}, nil
 }
 

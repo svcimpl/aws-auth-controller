@@ -1,0 +1,46 @@
+{
+  "kind": "AWSAuth",
+  "apiVersion": "auth.svcimpl.com/v1alpha1",
+  "metadata": {
+    "name": "awsauth-sample",
+    "namespace": "default",
+    "uid": "19488d40-531b-4324-9caa-3819a08f0e26",
+    "resourceVersion": "7795",
+    "generation": 1,
+    "creationTimestamp": "2021-08-09T22:13:51Z",
+    "annotations": {
+      "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"auth.svcimpl.com/v1alpha1\",\"kind\":\"AWSAuth\",\"metadata\":{\"annotations\":{},\"name\":\"awsauth-sample\",\"namespace\":\"default\"},\"spec\":{\"aws_role\":\"gls-deployer-role\",\"kubernetes_role\":\"tools-deployer-role\",\"kubernetes_user_name\":\"gls-dev\",\"target_namespace\":\"tools\"}}\n"
+    },
+    "managedFields": [
+      {
+        "manager": "kubectl-client-side-apply",
+        "operation": "Update",
+        "apiVersion": "auth.svcimpl.com/v1alpha1",
+        "time": "2021-08-09T22:13:51Z",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:metadata": {
+            "f:annotations": {
+              ".": {},
+              "f:kubectl.kubernetes.io/last-applied-configuration": {}
+            }
+          },
+          "f:spec": {
+            ".": {},
+            "f:aws_role": {},
+            "f:kubernetes_role": {},
+            "f:kubernetes_user_name": {},
+            "f:target_namespace": {}
+          }
+        }
+      }
+    ]
+  },
+  "spec": {
+    "aws_role": "gls-deployer-role",
+    "target_namespace": "tools",
+    "kubernetes_role": "tools-deployer-role",
+    "kubernetes_user_name": "gls-dev"
+  },
+  "status": {}
+}

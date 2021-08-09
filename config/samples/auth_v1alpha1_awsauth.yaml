@@ -4,4 +4,7 @@ metadata:
   name: awsauth-sample
 spec:
   # Add fields here
-  foo: bar
+  aws_role: gls-deployer-role
+  kubernetes_role: tools-deployer-role
+  kubernetes_user_name: gls-dev
+  target_namespace: tools
