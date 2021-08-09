@@ -1,0 +1,34 @@
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - auth.svcimpl.com
+  resources:
+  - awsauths
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - auth.svcimpl.com
+  resources:
+  - awsauths/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - auth.svcimpl.com
+  resources:
+  - awsauths/status
+  verbs:
+  - get
+  - patch
+  - update

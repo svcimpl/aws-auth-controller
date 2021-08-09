@@ -25,11 +25,14 @@ import (
 
 // AWSAuthSpec defines the desired state of AWSAuth
 type AWSAuthSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
-	// Foo is an example field of AWSAuth. Edit awsauth_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	//The AWSRole that is assumed by AWS Principal
+	AWSRole string `json:"aws_role,omitempty"`
+	//The namespace that this AWSRole has access to
+	TargetNamespace string `json:"target_namespace,omitempty"`
+	//Kubernetes role name for the RBAC
+	KubernetesRole string `json:"kubernetes_role,omitempty"`
+	//Kubernetes username for RBAC RoleBinding to AWS AUTH ConfigMap
+	KubernetesUserName string `json:"kubernetes_user_name,omitempty"`
 }
 
 // AWSAuthStatus defines the observed state of AWSAuth
