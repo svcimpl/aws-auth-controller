@@ -1,0 +1,38 @@
+{
+  "kind": "ConfigMap",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "aws-auth",
+    "namespace": "kube-system",
+    "uid": "857ceb5a-7a3f-4c98-b624-f684859cf452",
+    "resourceVersion": "3883",
+    "creationTimestamp": "2021-08-09T21:35:34Z",
+    "annotations": {
+      "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"data\":{\"mapRoles\":\"- rolearn: \\u003cARN of instance role (not instance profile)\\u003e\\n  username: system:node:{{EC2PrivateDNSName}}\\n  groups:\\n    - system:bootstrappers\\n    - system:nodes\\n\"},\"kind\":\"ConfigMap\",\"metadata\":{\"annotations\":{},\"name\":\"aws-auth\",\"namespace\":\"kube-system\"}}\n"
+    },
+    "managedFields": [
+      {
+        "manager": "kubectl-client-side-apply",
+        "operation": "Update",
+        "apiVersion": "v1",
+        "time": "2021-08-09T21:35:34Z",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:data": {
+            ".": {},
+            "f:mapRoles": {}
+          },
+          "f:metadata": {
+            "f:annotations": {
+              ".": {},
+              "f:kubectl.kubernetes.io/last-applied-configuration": {}
+            }
+          }
+        }
+      }
+    ]
+  },
+  "data": {
+    "mapRoles": "- rolearn: \u003cARN of instance role (not instance profile)\u003e\n  username: system:node:{{EC2PrivateDNSName}}\n  groups:\n    - system:bootstrappers\n    - system:nodes\n"
+  }
+}

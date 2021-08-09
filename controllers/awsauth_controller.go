@@ -19,7 +19,10 @@ package controllers
 import (
 	"context"
 	"fmt"
+	_ "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/json"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -49,6 +52,11 @@ func (r *AWSAuthReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	//start := time.Now()
 	log := ctrl.LoggerFrom(ctx)
 
+	cm_ns_name := types.NamespacedName{
+		Namespace: "kube-system",
+		Name:      "aws-auth",
+	}
+
 	var customawsauth authv1alpha1.AWSAuth
 	// your logic here
 	if err := r.Get(ctx, req.NamespacedName, &customawsauth); err != nil {
@@ -59,6 +67,19 @@ func (r *AWSAuthReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return ctrl.Result{}, err
 	}
 	log.Info(fmt.Sprintf("CRD AWSAuth is :\n %s", string(marshal)))
+	//Now do the reconcile based on what we get
+	//We will get the AWSRole
+	//We need to get the aws-auth config map
+	var awsAuthConfigmap corev1.ConfigMap
+	if err := r.Get(ctx, cm_ns_name, &awsAuthConfigmap); err != nil {
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	awsCm, err := json.Marshal(awsAuthConfigmap)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+	log.Info(fmt.Sprintf("AWS-Auth Configmap is is :\n %s", string(awsCm)))
 	return ctrl.Result{}, nil
 }
 
