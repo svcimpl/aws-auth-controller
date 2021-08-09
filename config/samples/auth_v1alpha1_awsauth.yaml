@@ -1,0 +1,7 @@
+apiVersion: auth.svcimpl.com/v1alpha1
+kind: AWSAuth
+metadata:
+  name: awsauth-sample
+spec:
+  # Add fields here
+  foo: bar

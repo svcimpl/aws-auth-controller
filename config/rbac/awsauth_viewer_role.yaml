@@ -1,0 +1,20 @@
+# permissions for end users to view awsauths.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: awsauth-viewer-role
+rules:
+- apiGroups:
+  - auth.svcimpl.com
+  resources:
+  - awsauths
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - auth.svcimpl.com
+  resources:
+  - awsauths/status
+  verbs:
+  - get

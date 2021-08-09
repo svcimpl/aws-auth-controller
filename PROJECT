@@ -1,0 +1,16 @@
+domain: svcimpl.com
+layout:
+- go.kubebuilder.io/v3
+projectName: aws-auth-controller
+repo: svcimpl.com/aws-auth-controller
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: svcimpl.com
+  group: auth
+  kind: AWSAuth
+  path: svcimpl.com/aws-auth-controller/api/v1alpha1
+  version: v1alpha1
+version: "3"
