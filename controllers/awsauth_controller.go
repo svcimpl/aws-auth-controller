@@ -18,15 +18,21 @@ package controllers
 
 import (
 	"context"
-	"fmt"
-	_ "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/json"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+
 	authv1alpha1 "svcimpl.com/aws-auth-controller/api/v1alpha1"
+)
+
+const (
+	AwsAuthNamespace = "kube-system"
+	AwsAuthName      = "aws-auth"
+	//name of our custom finalizer
+	FinalizerName = "auth.svcimpl.com/finalizer"
 )
 
 // AWSAuthReconciler reconciles a AWSAuth object
@@ -52,34 +58,70 @@ func (r *AWSAuthReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	//start := time.Now()
 	log := ctrl.LoggerFrom(ctx)
 
-	cm_ns_name := types.NamespacedName{
-		Namespace: "kube-system",
-		Name:      "aws-auth",
+	cmNsName := types.NamespacedName{
+		Namespace: AwsAuthNamespace,
+		Name:      AwsAuthName,
 	}
 
 	var customawsauth authv1alpha1.AWSAuth
-	// your logic here
+	//Get CRD
 	if err := r.Get(ctx, req.NamespacedName, &customawsauth); err != nil {
+		log.Info("Delete reconcile received after finalization")
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
-	marshal, err := json.Marshal(customawsauth)
-	if err != nil {
+	log.Info("Successfully retrieved CustomAWSAuth")
+
+	//Register the finalizer on the CRD if not already done
+	if err := r.registerFinalizer(ctx, &customawsauth); err != nil {
 		return ctrl.Result{}, err
-	}
-	log.Info(fmt.Sprintf("CRD AWSAuth is :\n %s", string(marshal)))
-	//Now do the reconcile based on what we get
-	//We will get the AWSRole
-	//We need to get the aws-auth config map
-	var awsAuthConfigmap corev1.ConfigMap
-	if err := r.Get(ctx, cm_ns_name, &awsAuthConfigmap); err != nil {
-		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	awsCm, err := json.Marshal(awsAuthConfigmap)
+	//Our reconcile target
+	var awsAuthConfigmap corev1.ConfigMap
+	//Check if this reconcile call was a delete
+	if !customawsauth.ObjectMeta.DeletionTimestamp.IsZero() {
+		// Resource is marked for deletion
+		// Clean-up the AWSAuth and remove the finalizer so that the source CustomAWSAuth can be deleted
+		if err := r.Get(ctx, cmNsName, &awsAuthConfigmap); err != nil {
+			if client.IgnoreNotFound(err) != nil { //we have a real error
+				return ctrl.Result{}, err
+			}
+			// There is no config map for aws-auth, so nothing for us to clean-up
+		} else {
+			//Clean up the aws-auth configmap
+			err := r.deleteRoleMapping(ctx, &awsAuthConfigmap, &customawsauth)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			log.Info("RoleMapping deleted in aws-auth configmap")
+		}
+		// remove our finalizer from the list and update it.
+		controllerutil.RemoveFinalizer(&customawsauth, FinalizerName)
+		if err := r.Update(ctx, &customawsauth); err != nil {
+			return ctrl.Result{}, err
+		}
+		return ctrl.Result{}, nil
+	}
+
+	//If we came here, it is not a delete reconcile
+
+	//Get AWSAuth ConfigMap
+	if err := r.Get(ctx, cmNsName, &awsAuthConfigmap); err != nil {
+		if client.IgnoreNotFound(err) == nil { //no existing aws-auth configmap
+			err := r.createOrUpdateRoleMapping(ctx, nil, &customawsauth)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			log.Info("RoleMapping entry created in aws-auth configmap")
+		} else { //some other error
+			return ctrl.Result{}, err
+		}
+	}
+	err := r.createOrUpdateRoleMapping(ctx, &awsAuthConfigmap, &customawsauth)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
-	log.Info(fmt.Sprintf("AWS-Auth Configmap is is :\n %s", string(awsCm)))
+	log.Info("RoleMapping entry inserted/updated in aws-auth configmap")
 	return ctrl.Result{}, nil
 }
 

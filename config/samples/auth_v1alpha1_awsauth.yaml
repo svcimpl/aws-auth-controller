@@ -6,5 +6,5 @@ spec:
   # Add fields here
   aws_role: gls-deployer-role
   kubernetes_role: tools-deployer-role
-  kubernetes_user_name: gls-dev
+  kubernetes_user_name: gls-dev-bar
   target_namespace: tools
